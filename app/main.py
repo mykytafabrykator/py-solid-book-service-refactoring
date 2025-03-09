@@ -1,19 +1,20 @@
 import json
 import xml.etree.ElementTree as ET
+from typing import Type
+
+from app.displays import Display, ConsoleDisplay, ReverseDisplay
+
+
+DISPLAY_SWITCH: dict[str, Type[Display]] = {
+    "console": ConsoleDisplay,
+    "reverse": ReverseDisplay,
+}
 
 
 class Book:
     def __init__(self, title: str, content: str):
         self.title = title
         self.content = content
-
-    def display(self, display_type: str) -> None:
-        if display_type == "console":
-            print(self.content)
-        elif display_type == "reverse":
-            print(self.content[::-1])
-        else:
-            raise ValueError(f"Unknown display type: {display_type}")
 
     def print_book(self, print_type: str) -> None:
         if print_type == "console":
@@ -42,9 +43,11 @@ class Book:
 def main(book: Book, commands: list[tuple[str, str]]) -> None | str:
     for cmd, method_type in commands:
         if cmd == "display":
-            book.display(method_type)
+            DISPLAY_SWITCH[method_type]().display(book.content)
+
         elif cmd == "print":
             book.print_book(method_type)
+
         elif cmd == "serialize":
             return book.serialize(method_type)
 
